@@ -84,8 +84,8 @@ func (api *apiNatsModule) Start(ctx context.Context) error {
 
 	api.natsConn = nc
 
-	//обработчик подписок
-	go api.subscriptionHandler()
+	//обработчик подписки запросов поиска информации по БД GeoIP
+	go api.subscriptionRequestHandler()
 
 	//обработчик информации полученной изнутри приложения
 	go api.incomingInformationHandler(ctx)

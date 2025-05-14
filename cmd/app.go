@@ -110,7 +110,8 @@ func app(ctx context.Context) {
 		natsapi.WithHost(confNats.Host),
 		natsapi.WithPort(confNats.Port),
 		natsapi.WithCacheTTL(confNats.CacheTTL),
-		natsapi.WithSubscription(confNats.Subscription))
+		natsapi.WithSubscriptionRequest(confNats.SubscriptionRequest),
+		natsapi.WithSubscriptionResponse(confNats.SubscriptionResponse))
 	if err != nil {
 		_ = simpleLogger.Write("error", supportingfunctions.CustomError(err).Error())
 

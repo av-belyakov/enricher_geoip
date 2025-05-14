@@ -62,14 +62,27 @@ func WithNameRegionalObject(v string) NatsApiOptions {
 	}
 }
 
-// WithSubscription 'слушатель' сообщений
-func WithSubscription(v string) NatsApiOptions {
+// WithSubscriptionRequest 'слушатель' запросов на поиск информации
+func WithSubscriptionRequest(v string) NatsApiOptions {
 	return func(n *apiNatsModule) error {
 		if v == "" {
-			return errors.New("the value of 'subscription' cannot be empty")
+			return errors.New("the value of 'subscription_request' cannot be empty")
 		}
 
-		n.subscription = v
+		n.subscriptionRequest = v
+
+		return nil
+	}
+}
+
+// WithSubscriptionResponse подписка для передачи ответов
+func WithSubscriptionResponse(v string) NatsApiOptions {
+	return func(n *apiNatsModule) error {
+		if v == "" {
+			return errors.New("the value of 'subscription_response' cannot be empty")
+		}
+
+		n.subscriptionResponse = v
 
 		return nil
 	}

@@ -8,13 +8,14 @@ import (
 
 // apiNatsSettings настройки для API NATS
 type apiNatsModule struct {
-	counter      interfaces.Counter
-	logger       interfaces.Logger
-	natsConn     *nats.Conn
-	subscription string
-	settings     apiNatsSettings
-	chFromModule chan SettingsChanOutput
-	chToModule   chan SettingsChanInput
+	counter              interfaces.Counter
+	logger               interfaces.Logger
+	natsConn             *nats.Conn
+	subscriptionRequest  string
+	subscriptionResponse string
+	settings             apiNatsSettings
+	chFromModule         chan SettingsChanOutput
+	chToModule           chan SettingsChanInput
 }
 
 type apiNatsSettings struct {

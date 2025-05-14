@@ -9,6 +9,8 @@ import (
 	"runtime"
 	"strings"
 	"time"
+
+	"github.com/av-belyakov/enricher_geoip/internal/supportingfunctions"
 )
 
 // NewGeoIpClient GeoIP клиент
@@ -53,7 +55,7 @@ func (gic *GeoIpClient) GetGeoInformation(ctx context.Context, ip string) (GeoIp
 	}
 
 	res, err := gic.client.Do(req)
-	defer responseClose(res)
+	defer supportingfunctions.ResponseClose(res)
 	if err != nil {
 		_, f, l, _ := runtime.Caller(0)
 		return result, fmt.Errorf("%v %s:%d", err, f, l-2)

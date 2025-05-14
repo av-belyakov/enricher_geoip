@@ -55,10 +55,11 @@ type Handshake struct {
 
 // CfgNats настройки доступа к NATS
 type CfgNats struct {
-	Subscription string `yaml:"subscription"`
-	Host         string `validate:"required" yaml:"host"`
-	Port         int    `validate:"gt=0,lte=65535" yaml:"port"`
-	CacheTTL     int    `validate:"gt=10,lte=86400" yaml:"cache_ttl"`
+	SubscriptionRequest  string `yaml:"subscription_request"`
+	SubscriptionResponse string `yaml:"subscription_response"`
+	Host                 string `validate:"required" yaml:"host"`
+	Port                 int    `validate:"gt=0,lte=65535" yaml:"port"`
+	CacheTTL             int    `validate:"gt=10,lte=86400" yaml:"cache_ttl"`
 }
 
 // CfgWriteLogDB настройки записи данных в БД

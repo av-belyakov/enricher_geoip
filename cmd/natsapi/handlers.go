@@ -10,15 +10,23 @@ import (
 	"github.com/av-belyakov/enricher_geoip/internal/supportingfunctions"
 )
 
-// subscriptionHandler обработчик подписки
-func (api *apiNatsModule) subscriptionHandler() {
-	_, err := api.natsConn.Subscribe(api.subscription, func(m *nats.Msg) {
+// subscriptionHandler обработчик подписки приёма запросов
+func (api *apiNatsModule) subscriptionRequestHandler() {
+	_, err := api.natsConn.Subscribe(api.subscriptionRequest, func(m *nats.Msg) {
+
+		/*
+
+			написать хранилище запросов, где ключ - идентификатор задачи
+			значение - все искомые адреса
+
+		*/
+
 		api.chFromModule <- SettingsChanOutput{
 			TaskId: uuid.NewString(),
 			Data:   m.Data,
 		}
 
-		//счетчик принятых кейсов
+		//счетчик принятых запросов
 		api.counter.SendMessage("update accepted events", 1)
 	})
 	if err != nil {

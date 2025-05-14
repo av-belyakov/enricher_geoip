@@ -25,8 +25,9 @@ func TestMain(m *testing.M) {
 	//Подключение к NATS
 	os.Unsetenv("GO_ENRICHERGEOIP_NHOST")
 	os.Unsetenv("GO_ENRICHERGEOIP_NPORT")
-	os.Unsetenv("GO_ENRICHERGEOIP_NSUBSCR")
 	os.Unsetenv("GO_ENRICHERGEOIP_NCACHETTL")
+	os.Unsetenv("GO_ENRICHERGEOIP_NSUBSCREQ")
+	os.Unsetenv("GO_ENRICHERGEOIP_NSUBSCRES")
 
 	//Подключение к GeoIP БД
 	os.Unsetenv("GO_ENRICHERGEOIP_GIPHOST")
@@ -62,7 +63,8 @@ func TestConfigHandler(t *testing.T) {
 			assert.Equal(t, conf.GetNATS().Host, "192.168.9.208")
 			assert.Equal(t, conf.GetNATS().Port, 4222)
 			assert.Equal(t, conf.GetNATS().CacheTTL, 3600)
-			assert.Equal(t, conf.GetNATS().Subscription, "object.geoip-request.test")
+			assert.Equal(t, conf.GetNATS().SubscriptionRequest, "object.geoip-request.test")
+			assert.Equal(t, conf.GetNATS().SubscriptionResponse, "object.geoip-response.test")
 		})
 
 		t.Run("Тест 2. Проверка настройки GeoIPDataBase из файла config_dev.yml", func(t *testing.T) {
@@ -87,7 +89,8 @@ func TestConfigHandler(t *testing.T) {
 			os.Setenv("GO_ENRICHERGEOIP_NHOST", "127.0.0.1")
 			os.Setenv("GO_ENRICHERGEOIP_NPORT", "4242")
 			os.Setenv("GO_ENRICHERGEOIP_NCACHETTL", "650")
-			os.Setenv("GO_ENRICHERGEOIP_NSUBSCR", "obj.subscript.test")
+			os.Setenv("GO_ENRICHERGEOIP_NSUBSCREQ", "obj.subscript.test_request")
+			os.Setenv("GO_ENRICHERGEOIP_NSUBSCRES", "obj.subscript.test_response")
 
 			conf, err := confighandler.New(Root_Dir)
 			assert.NoError(t, err)
@@ -95,7 +98,8 @@ func TestConfigHandler(t *testing.T) {
 			assert.Equal(t, conf.GetNATS().Host, "127.0.0.1")
 			assert.Equal(t, conf.GetNATS().Port, 4242)
 			assert.Equal(t, conf.GetNATS().CacheTTL, 650)
-			assert.Equal(t, conf.GetNATS().Subscription, "obj.subscript.test")
+			assert.Equal(t, conf.GetNATS().SubscriptionRequest, "obj.subscript.test_request")
+			assert.Equal(t, conf.GetNATS().SubscriptionResponse, "obj.subscript.test_response")
 		})
 
 		t.Run("Тест 2. Проверка настройки GeoIPDataBase", func(t *testing.T) {

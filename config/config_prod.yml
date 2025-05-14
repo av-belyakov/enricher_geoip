@@ -2,7 +2,8 @@ NATS:
   host: nats.cloud.gcm
   port: 4222
   cache_ttl: 3600
-  subscription: object.geoip-request
+  subscription_request: object.geoip-request
+  subscription_response: object.geoip-response
 GeoIPDataBase:
   host: pg2.cloud.gcm
   port: 88

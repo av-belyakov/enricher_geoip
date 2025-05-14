@@ -25,8 +25,9 @@ func New(rootDir string) (*ConfigApp, error) {
 			//Подключение к NATS
 			"GO_ENRICHERGEOIP_NHOST":     "",
 			"GO_ENRICHERGEOIP_NPORT":     "",
-			"GO_ENRICHERGEOIP_NSUBSCR":   "",
 			"GO_ENRICHERGEOIP_NCACHETTL": "",
+			"GO_ENRICHERGEOIP_NSUBSCREQ": "",
+			"GO_ENRICHERGEOIP_NSUBSCRES": "",
 
 			//Подключение к GeoIP БД
 			"GO_ENRICHERGEOIP_GIPHOST": "",
@@ -108,8 +109,11 @@ func New(rootDir string) (*ConfigApp, error) {
 		if viper.IsSet("NATS.cache_ttl") {
 			conf.NATS.CacheTTL = viper.GetInt("NATS.cache_ttl")
 		}
-		if viper.IsSet("NATS.subscription") {
-			conf.NATS.Subscription = viper.GetString("NATS.subscription")
+		if viper.IsSet("NATS.subscription_request") {
+			conf.NATS.SubscriptionRequest = viper.GetString("NATS.subscription_request")
+		}
+		if viper.IsSet("NATS.subscription_response") {
+			conf.NATS.SubscriptionResponse = viper.GetString("NATS.subscription_response")
 		}
 
 		// Настройки доступа к БД GeoIP
@@ -201,13 +205,16 @@ func New(rootDir string) (*ConfigApp, error) {
 			conf.NATS.Port = p
 		}
 	}
-	if envList["GO_ENRICHERGEOIP_NSUBSCR"] != "" {
-		conf.NATS.Subscription = envList["GO_ENRICHERGEOIP_NSUBSCR"]
-	}
 	if envList["GO_ENRICHERGEOIP_NCACHETTL"] != "" {
 		if ttl, err := strconv.Atoi(envList["GO_ENRICHERGEOIP_NCACHETTL"]); err == nil {
 			conf.NATS.CacheTTL = ttl
 		}
+	}
+	if envList["GO_ENRICHERGEOIP_NSUBSCREQ"] != "" {
+		conf.NATS.SubscriptionRequest = envList["GO_ENRICHERGEOIP_NSUBSCREQ"]
+	}
+	if envList["GO_ENRICHERGEOIP_NSUBSCRES"] != "" {
+		conf.NATS.SubscriptionResponse = envList["GO_ENRICHERGEOIP_NSUBSCRES"]
 	}
 
 	//Настройки доступа к БД GeoIP
