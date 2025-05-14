@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/av-belyakov/enricher_geoip/cmd/elasticsearchapi"
+	"github.com/av-belyakov/enricher_geoip/cmd/natsapi"
 	"github.com/av-belyakov/enricher_geoip/cmd/wrappers"
 	"github.com/av-belyakov/enricher_geoip/constants"
 	"github.com/av-belyakov/enricher_geoip/interfaces"
@@ -109,8 +110,7 @@ func app(ctx context.Context) {
 		natsapi.WithHost(confNats.Host),
 		natsapi.WithPort(confNats.Port),
 		natsapi.WithCacheTTL(confNats.CacheTTL),
-		natsapi.WithSendCommand(confNats.Command),
-		natsapi.WithSubscriptions(confNats.Subscriptions))
+		natsapi.WithSubscription(confNats.Subscription))
 	if err != nil {
 		_ = simpleLogger.Write("error", supportingfunctions.CustomError(err).Error())
 

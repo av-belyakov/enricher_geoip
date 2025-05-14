@@ -122,6 +122,9 @@ func New(rootDir string) (*ConfigApp, error) {
 		if viper.IsSet("GeoIPDataBase.path") {
 			conf.GeoIPDB.Path = viper.GetString("GeoIPDataBase.path")
 		}
+		if viper.IsSet("GeoIPDataBase.request_timeout") {
+			conf.GeoIPDB.RequestTimeout = viper.GetInt("GeoIPDataBase.request_timeout")
+		}
 
 		// Настройки доступа к БД в которую будут записыватся логи
 		if viper.IsSet("WriteLogDataBase.host") {

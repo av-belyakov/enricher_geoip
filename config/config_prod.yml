@@ -7,6 +7,7 @@ GeoIPDataBase:
   host: pg2.cloud.gcm
   port: 88
   path: ip
+  request_timeout: 7
 WriteLogDataBase:
   host: datahook.cloud.gcm
   port: 9200

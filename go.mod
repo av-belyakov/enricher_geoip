@@ -3,12 +3,13 @@ module github.com/av-belyakov/enricher_geoip
 go 1.24.3
 
 require (
-	github.com/av-belyakov/placeholder_misp v0.0.0-20250512125749-fc13d6cb5e91
 	github.com/av-belyakov/simplelogger v0.0.0-20250225125610-1e1723ce15ea
 	github.com/av-belyakov/zabbixapicommunicator v0.0.0-20250512120600-9940a6578ff4
 	github.com/elastic/go-elasticsearch/v8 v8.18.0
 	github.com/go-playground/validator/v10 v10.26.0
+	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
+	github.com/nats-io/nats.go v1.38.0
 	github.com/spf13/viper v1.20.1
 	github.com/stretchr/testify v1.10.0
 )
@@ -23,7 +24,10 @@ require (
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
+	github.com/klauspost/compress v1.17.9 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
+	github.com/nats-io/nkeys v0.4.9 // indirect
+	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/sagikazarmark/locafero v0.7.0 // indirect

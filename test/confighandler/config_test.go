@@ -69,6 +69,7 @@ func TestConfigHandler(t *testing.T) {
 			assert.Equal(t, conf.GetGeoIPDB().Host, "pg2.cloud.gcm")
 			assert.Equal(t, conf.GetGeoIPDB().Port, 88)
 			assert.Equal(t, conf.GetGeoIPDB().Path, "ip")
+			assert.Equal(t, conf.GetGeoIPDB().RequestTimeout, 5)
 		})
 
 		t.Run("Тест 3. Проверка настройки WriteLogDataBase из файла config_dev.yml", func(t *testing.T) {

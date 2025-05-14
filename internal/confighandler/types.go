@@ -73,7 +73,8 @@ type CfgWriteLogDB struct {
 
 // CfgGeoIPDB настройки взаимодействия с БД GeoIP
 type CfgGeoIPDB struct {
-	Host string `yaml:"host"`
-	Path string `yaml:"path"`
-	Port int    `validate:"gt=0,lte=65535" yaml:"port"`
+	Host           string `yaml:"host"`
+	Path           string `yaml:"path"`
+	Port           int    `validate:"gt=0,lte=65535" yaml:"port"`
+	RequestTimeout int    `validate:"gt=1,lt=13" yaml:"request_timeout"`
 }
