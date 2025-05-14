@@ -1,0 +1,70 @@
+#****   LOGGING настройки логирования ****
+#
+# msgTypeName - тип сообщения, от этого зависит в какой лог-файл будет отправлятся
+#  сообщение, а также с каким префиксом оно будет дублироватся в консоль
+# writingFile - нужно ли записывать сообщение в файл или только выводить в консоль
+# writingStdout - нужно ли выводить сообщение в консоль
+# pathDirectory - директория для записи лог-файлов
+# maxFileSize - максимальный размер файла, после которого будет создаваться новый
+#  файл, а текущий будет архивироваться
+LOGGING:
+  - msgTypeName: error
+    writingDB: true
+    writingStdout: true
+    writingFile: true
+    pathDirectory: logs
+    maxFileSize: 10000000
+  - msgTypeName: warning
+    writingDB: true
+    writingStdout: true
+    writingFile: true
+    pathDirectory: logs
+    maxFileSize: 10000000
+  - msgTypeName: info
+    writingDB: true
+    writingStdout: true
+    writingFile: true
+    pathDirectory: logs
+    maxFileSize: 10000000
+
+#****   ZABBIX настройки подключения к серверу Zabbix ****
+#
+# networkHost: хост в формате ip или domainname для подклчения к серверу
+#  networkPort: сетевой порт
+#  zabbixHosts: группа хостов zabbix
+#    - zabbixHost: имя хоста (приемник сообщений)
+#      eventTypes: группы типов событий (например error, info или handshake)
+#        - eventType: тип события (на какое событие отправлять данные)
+#          zabbixKey: ключ приемника
+#          isTransmit: триггер включения/отключения передачи
+#          handshake:
+#            timeInterval: временной интервал в минутах, нужен для
+#             подтверждения активности модуля (если 0 НЕ ПЕРЕДАЮТСЯ)
+#            message: сообщение которое будет отправлятся для подтверждения
+#             активности (если пустое. то не передается)
+ZABBIX:
+  networkHost: 192.168.9.45
+  networkPort: 10051
+  zabbixHost: test-uchet-db.cloud.gcm
+  eventTypes:
+    # для отслеживания ошибок
+    - eventType: error
+      zabbixKey: enricher_geoip.error
+      isTransmit: true
+      handshake:
+        timeInterval: 0
+        message:
+    # для информационных сообщений о выполненной работе
+    - eventType: info
+      zabbixKey: enricher_geoip.info
+      isTransmit: true
+      handshake:
+        timeInterval: 0
+        message: "I'm still alive"
+    # для регулярного отстукивания что модуль еще работает
+    - eventType: handshake
+      zabbixKey: enricher_geoip.handshake
+      isTransmit: true
+      handshake:
+        timeInterval: 1
+        message: "0"

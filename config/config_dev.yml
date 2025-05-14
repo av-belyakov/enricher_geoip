@@ -1,0 +1,15 @@
+NATS:
+  host: 192.168.9.208
+  port: 4222
+  cache_ttl: 3600
+  subscription: object.geoip-request.test
+GeoIPDataBase:
+  host: pg2.cloud.gcm
+  port: 88
+  path: ip
+WriteLogDataBase:
+  host: datahook.cloud.gcm
+  port: 9200
+  user: log_writer
+  namedb: ""
+  storage_name_db: enricher_geoip
