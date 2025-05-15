@@ -11,6 +11,7 @@ import (
 
 	"github.com/av-belyakov/enricher_geoip/constants"
 	"github.com/av-belyakov/enricher_geoip/interfaces"
+	"github.com/av-belyakov/enricher_geoip/internal/storagetemporary"
 	"github.com/av-belyakov/enricher_geoip/internal/supportingfunctions"
 )
 
@@ -43,6 +44,17 @@ func New(counter interfaces.Counter, logger interfaces.Logger, opts ...NatsApiOp
 // при инициализации возращается канал для взаимодействия с модулем, все
 // запросы к модулю выполняются через данный канал
 func (api *apiNatsModule) Start(ctx context.Context) error {
+	storage, err := storagetemporary.New(
+		ctx,
+		storagetemporary.WithCacheTTL(180),
+		storagetemporary.WithCacheTimeTick(5),
+	)
+	if err != nil {
+		return err
+	}
+
+	api.storage = storage
+
 	if ctx.Err() != nil {
 		return ctx.Err()
 	}

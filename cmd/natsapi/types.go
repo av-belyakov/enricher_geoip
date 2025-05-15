@@ -4,6 +4,7 @@ import (
 	"github.com/nats-io/nats.go"
 
 	"github.com/av-belyakov/enricher_geoip/interfaces"
+	"github.com/av-belyakov/enricher_geoip/internal/storagetemporary"
 )
 
 // apiNatsSettings настройки для API NATS
@@ -11,6 +12,7 @@ type apiNatsModule struct {
 	counter              interfaces.Counter
 	logger               interfaces.Logger
 	natsConn             *nats.Conn
+	storage              *storagetemporary.StorageTemporary
 	subscriptionRequest  string
 	subscriptionResponse string
 	settings             apiNatsSettings
