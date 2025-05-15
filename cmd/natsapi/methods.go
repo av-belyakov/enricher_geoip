@@ -2,13 +2,13 @@ package natsapi
 
 import "errors"
 
-// GetChanDataToModule канал для передачи данных в модуль
-func (api *apiNatsModule) GetChanDataToModule() chan SettingsChanInput {
+// GetChToModule канал для передачи данных в модуль
+func (api *apiNatsModule) GetChToModule() chan ObjectForTransfer {
 	return api.chToModule
 }
 
-// GetChanDataFromModule канал для приёма данных из модуля
-func (api *apiNatsModule) GetChanDataFromModule() chan SettingsChanOutput {
+// GetChFromModule канал для приёма данных из модуля
+func (api *apiNatsModule) GetChFromModule() chan ObjectForTransfer {
 	return api.chFromModule
 }
 

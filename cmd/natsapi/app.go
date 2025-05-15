@@ -9,9 +9,9 @@ import (
 
 	"github.com/nats-io/nats.go"
 
+	"github.com/av-belyakov/enricher_geoip/cmd/natsapi/storagetemporary"
 	"github.com/av-belyakov/enricher_geoip/constants"
 	"github.com/av-belyakov/enricher_geoip/interfaces"
-	"github.com/av-belyakov/enricher_geoip/internal/storagetemporary"
 	"github.com/av-belyakov/enricher_geoip/internal/supportingfunctions"
 )
 
@@ -26,9 +26,9 @@ func New(counter interfaces.Counter, logger interfaces.Logger, opts ...NatsApiOp
 		//для логирования
 		logger: logger,
 		//запросы в модуль
-		chFromModule: make(chan SettingsChanOutput),
+		chFromModule: make(chan ObjectForTransfer),
 		//события из модуля
-		chToModule: make(chan SettingsChanInput),
+		chToModule: make(chan ObjectForTransfer),
 	}
 
 	for _, opt := range opts {
@@ -46,8 +46,8 @@ func New(counter interfaces.Counter, logger interfaces.Logger, opts ...NatsApiOp
 func (api *apiNatsModule) Start(ctx context.Context) error {
 	storage, err := storagetemporary.New(
 		ctx,
-		storagetemporary.WithCacheTTL(180),
-		storagetemporary.WithCacheTimeTick(5),
+		storagetemporary.WithCacheTTL(300),
+		storagetemporary.WithCacheTimeTick(10),
 	)
 	if err != nil {
 		return err
@@ -105,6 +105,7 @@ func (api *apiNatsModule) Start(ctx context.Context) error {
 	context.AfterFunc(ctx, func() {
 		fmt.Println("func 'apiNatsModule.Start', STOP FUNC")
 
+		api.storage.Cancel()
 		nc.Drain()
 	})
 

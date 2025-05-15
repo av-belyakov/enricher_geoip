@@ -1,4 +1,4 @@
-package natsapi
+package requests
 
 type Request struct {
 	ListIp []string `json:"list_ip_addresses"`

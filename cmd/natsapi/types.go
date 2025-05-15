@@ -3,8 +3,8 @@ package natsapi
 import (
 	"github.com/nats-io/nats.go"
 
+	"github.com/av-belyakov/enricher_geoip/cmd/natsapi/storagetemporary"
 	"github.com/av-belyakov/enricher_geoip/interfaces"
-	"github.com/av-belyakov/enricher_geoip/internal/storagetemporary"
 )
 
 // apiNatsSettings настройки для API NATS
@@ -16,8 +16,8 @@ type apiNatsModule struct {
 	subscriptionRequest  string
 	subscriptionResponse string
 	settings             apiNatsSettings
-	chFromModule         chan SettingsChanOutput
-	chToModule           chan SettingsChanInput
+	chFromModule         chan ObjectForTransfer
+	chToModule           chan ObjectForTransfer
 }
 
 type apiNatsSettings struct {
@@ -31,16 +31,8 @@ type apiNatsSettings struct {
 // NatsApiOptions функциональные опции
 type NatsApiOptions func(*apiNatsModule) error
 
-// SettingsChanOutput канал вывода данных из модуля
-type SettingsChanOutput struct {
+// ObjectForTransfer объект для передачи данных
+type ObjectForTransfer struct {
 	Data   []byte
 	TaskId string
-}
-
-// SettingsChanInput канал для приема данных в модуль
-type SettingsChanInput struct {
-	Command string
-	TaskId  string
-	CaseId  string
-	RootId  string
 }

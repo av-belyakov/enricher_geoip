@@ -4,8 +4,10 @@ import (
 	"context"
 	"log"
 	"os"
+	"time"
 
 	"github.com/av-belyakov/enricher_geoip/cmd/elasticsearchapi"
+	"github.com/av-belyakov/enricher_geoip/cmd/geoipapi"
 	"github.com/av-belyakov/enricher_geoip/cmd/natsapi"
 	"github.com/av-belyakov/enricher_geoip/cmd/wrappers"
 	"github.com/av-belyakov/enricher_geoip/constants"
@@ -124,4 +126,22 @@ func app(ctx context.Context) {
 		log.Fatal(err)
 	}
 
+	// ***********************************************************************
+	// ************ инициализация модуля взаимодействия с БД GeoIP ***********
+	geoIpClient, err := geoipapi.NewGeoIpClient(
+		geoipapi.WithHost(conf.GetGeoIPDB().Host),
+		geoipapi.WithPort(conf.GetGeoIPDB().Port),
+		geoipapi.WithPath(conf.GetGeoIPDB().Path),
+		geoipapi.WithConnectionTimeout(time.Duration(conf.GetGeoIPDB().RequestTimeout)))
+	if err != nil {
+		_ = simpleLogger.Write("error", supportingfunctions.CustomError(err).Error())
+
+		log.Fatal(err)
+	}
+
+	//информационное сообщение
+	getInformationMessage()
+
+	router := NewRouter(counting, logging, geoIpClient, apiNats.GetChFromModule(), apiNats.GetChToModule())
+	log.Println(router.Start(ctx))
 }

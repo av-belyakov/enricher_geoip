@@ -2,7 +2,6 @@ package natsapi
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/nats-io/nats.go"
@@ -13,16 +12,12 @@ import (
 // subscriptionHandler обработчик подписки приёма запросов
 func (api *apiNatsModule) subscriptionRequestHandler() {
 	_, err := api.natsConn.Subscribe(api.subscriptionRequest, func(m *nats.Msg) {
+		taskId := uuid.NewString()
 
-		/*
+		api.storage.SetReq(taskId, m)
 
-			написать хранилище запросов, где ключ - идентификатор задачи
-			значение - все искомые адреса
-
-		*/
-
-		api.chFromModule <- SettingsChanOutput{
-			TaskId: uuid.NewString(),
+		api.chFromModule <- ObjectForTransfer{
+			TaskId: taskId,
 			Data:   m.Data,
 		}
 
@@ -42,16 +37,11 @@ func (api *apiNatsModule) incomingInformationHandler(ctx context.Context) {
 			return
 
 		case incomingData := <-api.chToModule:
-			//команда на установку тега
-			if err := api.natsConn.Publish(api.settings.command,
-				fmt.Appendf(nil, `{
-									  "service": "placeholder_docbase_db",
-									  "command": "add_case_tag",
-									  "root_id": "%s",
-									  "case_id": "%s",
-									  "value": "Webhook: send=\"ElasticsearchDB"
-								}`, incomingData.RootId, incomingData.CaseId)); err != nil {
-				api.logger.Send("error", supportingfunctions.CustomError(err).Error())
+			if m, ok := api.storage.GetReq(incomingData.TaskId); ok {
+				m.Respond(incomingData.Data)
+				api.storage.DelReq(incomingData.TaskId)
+
+				continue
 			}
 		}
 	}
