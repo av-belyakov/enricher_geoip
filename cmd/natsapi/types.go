@@ -34,5 +34,6 @@ type NatsApiOptions func(*apiNatsModule) error
 // ObjectForTransfer объект для передачи данных
 type ObjectForTransfer struct {
 	Data   []byte
+	Error  error
 	TaskId string
 }

@@ -48,6 +48,8 @@ func (r *Router) Start(ctx context.Context) error {
 }
 
 func (r *Router) handlerRequest(ctx context.Context, msg natsapi.ObjectForTransfer) {
+	response := natsapi.ObjectForTransfer{TaskId: msg.TaskId}
+
 	if ctx.Err() != nil {
 		return
 	}
@@ -55,6 +57,8 @@ func (r *Router) handlerRequest(ctx context.Context, msg natsapi.ObjectForTransf
 	var req requests.Request
 	if err := json.Unmarshal(msg.Data, &req); err != nil {
 		r.logger.Send("error", supportingfunctions.CustomError(err).Error())
+		response.Error = err
+		r.chToNatsApi <- response
 
 		return
 	}
@@ -81,7 +85,23 @@ func (r *Router) handlerRequest(ctx context.Context, msg natsapi.ObjectForTransf
 			continue
 		}
 
-		geoIpInfo := GetInfoGeoIP(geoIPRes)
+		geoIpInfo, _ := supportingfunctions.GetGeoIPInfo(geoIPRes)
+		geoIpInfo.IpAddr = ip
+
+		results = append(results, geoIpInfo)
 	}
+
+	b, err := json.Marshal(results)
+	if err != nil {
+		r.logger.Send("error", supportingfunctions.CustomError(err).Error())
+		response.Error = err
+		r.chToNatsApi <- response
+
+		return
+	}
+
 	r.counter.SendMessage("update processed events", 1)
+
+	response.Data = b
+	r.chToNatsApi <- response
 }
