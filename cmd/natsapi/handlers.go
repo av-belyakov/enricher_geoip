@@ -41,6 +41,12 @@ func (api *apiNatsModule) incomingInformationHandler(ctx context.Context) {
 				m.Respond(incomingData.Data)
 				api.storage.DelReq(incomingData.TaskId)
 
+				/*
+						!!!!!!!!!!!!!!
+					вроде всё сделал, надо выполнять общий тест всего приложения
+						!!!!!!!!!!!!!!
+				*/
+
 				continue
 			}
 		}

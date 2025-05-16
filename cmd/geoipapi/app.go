@@ -14,11 +14,11 @@ import (
 
 // NewGeoIpClient GeoIP клиент
 func NewGeoIpClient(opts ...geoIpClientOptions) (*GeoIpClient, error) {
-	settings := GeoIpClient{connectionTimeout: 30 * time.Second}
+	settings := &GeoIpClient{connectionTimeout: 30 * time.Second}
 
 	for _, opt := range opts {
-		if err := opt(&settings); err != nil {
-			return &settings, err
+		if err := opt(settings); err != nil {
+			return settings, err
 		}
 	}
 
@@ -29,7 +29,7 @@ func NewGeoIpClient(opts ...geoIpClientOptions) (*GeoIpClient, error) {
 			MaxIdleConnsPerHost: 10,
 		}}
 
-	return &settings, nil
+	return settings, nil
 }
 
 // GetGeoInformation делает запрос к API БД GeoIP

@@ -1,8 +1,10 @@
-package main
+package router
 
 import (
 	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
 
 	"github.com/av-belyakov/enricher_geoip/cmd/geoipapi"
 	"github.com/av-belyakov/enricher_geoip/cmd/natsapi"
@@ -28,6 +30,7 @@ func NewRouter(
 	chTo chan<- natsapi.ObjectForTransfer,
 ) *Router {
 	return &Router{
+		geoIpClient:   geoIpClient,
 		counter:       counter,
 		logger:        logger,
 		chFromNatsApi: chFrom,
@@ -35,16 +38,18 @@ func NewRouter(
 	}
 }
 
-func (r *Router) Start(ctx context.Context) error {
-	for {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
+func (r *Router) Start(ctx context.Context) {
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				return
 
-		case msg := <-r.chFromNatsApi:
-			go r.handlerRequest(ctx, msg)
+			case msg := <-r.chFromNatsApi:
+				go r.handlerRequest(ctx, msg)
+			}
 		}
-	}
+	}()
 }
 
 func (r *Router) handlerRequest(ctx context.Context, msg natsapi.ObjectForTransfer) {
@@ -57,19 +62,18 @@ func (r *Router) handlerRequest(ctx context.Context, msg natsapi.ObjectForTransf
 	var req requests.Request
 	if err := json.Unmarshal(msg.Data, &req); err != nil {
 		r.logger.Send("error", supportingfunctions.CustomError(err).Error())
-		response.Error = err
+		response.Error = errors.New("the request received an incorrect json format")
 		r.chToNatsApi <- response
 
 		return
 	}
-
 	results := make([]responses.DetailedInformation, 0, len(req.ListIp))
 	for _, ip := range req.ListIp {
 		result := responses.DetailedInformation{IpAddr: ip}
 
 		res, err := r.geoIpClient.GetGeoInformation(ctx, ip)
 		if err != nil {
-			result.Error = err.Error()
+			result.Error = "error interacting with a remote database"
 			results = append(results, result)
 			r.logger.Send("error", supportingfunctions.CustomError(err).Error())
 
@@ -78,7 +82,7 @@ func (r *Router) handlerRequest(ctx context.Context, msg natsapi.ObjectForTransf
 
 		var geoIPRes responses.ResponseGeoIPDataBase
 		if err = json.Unmarshal(res, &geoIPRes); err != nil {
-			result.Error = err.Error()
+			result.Error = "a json object in an incorrect format was received from the geoip database"
 			results = append(results, result)
 			r.logger.Send("error", supportingfunctions.CustomError(err).Error())
 
@@ -91,7 +95,11 @@ func (r *Router) handlerRequest(ctx context.Context, msg natsapi.ObjectForTransf
 		results = append(results, geoIpInfo)
 	}
 
-	b, err := json.Marshal(results)
+	b, err := json.Marshal(fmt.Appendf(nil, `{
+					"source": "%s",
+					"task_id": "%s",
+					"found_information": %v
+				}`, req.Source, req.TaskId, results))
 	if err != nil {
 		r.logger.Send("error", supportingfunctions.CustomError(err).Error())
 		response.Error = err

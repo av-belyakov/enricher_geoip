@@ -7,7 +7,7 @@ import (
 	"github.com/nats-io/nats.go"
 )
 
-// GetData получить дескриптор запроса
+// GetReq дескриптор запроса
 func (st *StorageTemporary) GetReq(key string) (*nats.Msg, bool) {
 	st.mux.RLock()
 	defer st.mux.RUnlock()
@@ -19,7 +19,7 @@ func (st *StorageTemporary) GetReq(key string) (*nats.Msg, bool) {
 	return nil, false
 }
 
-// SetData добавить дескриптор в кеш
+// SetReq дескриптор в кеш
 func (st *StorageTemporary) SetReq(key string, value *nats.Msg) {
 	st.mux.Lock()
 	defer st.mux.Unlock()

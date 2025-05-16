@@ -9,6 +9,7 @@ import (
 	"github.com/av-belyakov/enricher_geoip/cmd/elasticsearchapi"
 	"github.com/av-belyakov/enricher_geoip/cmd/geoipapi"
 	"github.com/av-belyakov/enricher_geoip/cmd/natsapi"
+	"github.com/av-belyakov/enricher_geoip/cmd/router"
 	"github.com/av-belyakov/enricher_geoip/cmd/wrappers"
 	"github.com/av-belyakov/enricher_geoip/constants"
 	"github.com/av-belyakov/enricher_geoip/interfaces"
@@ -142,6 +143,8 @@ func app(ctx context.Context) {
 	//информационное сообщение
 	getInformationMessage()
 
-	router := NewRouter(counting, logging, geoIpClient, apiNats.GetChFromModule(), apiNats.GetChToModule())
-	log.Println(router.Start(ctx))
+	router := router.NewRouter(counting, logging, geoIpClient, apiNats.GetChFromModule(), apiNats.GetChToModule())
+	router.Start(ctx)
+
+	<-ctx.Done()
 }

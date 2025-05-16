@@ -26,10 +26,10 @@ type ResponseGeoIPDataBase struct {
 }
 
 type IpAddrLocation struct {
-	Asns        []string `json:"asns"`
-	City        string   `json:"city"`
-	Country     string   `json:"country"`
-	CountryCode string   `json:"country_code"`
+	Asns        []any  `json:"asns"`
+	City        string `json:"city"`
+	Country     string `json:"country"`
+	CountryCode string `json:"country_code"`
 	IpRange     struct {
 		IpFirst string `json:"ip_first"`
 		IpLast  string `json:"ip_last"`
