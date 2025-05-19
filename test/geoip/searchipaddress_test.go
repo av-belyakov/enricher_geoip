@@ -2,7 +2,6 @@ package geoip_test
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"testing"
@@ -83,16 +82,16 @@ func TestRequestGeoIP(t *testing.T) {
 		}
 	}(logging)
 
-	chToRoute := make(chan natsapi.ObjectForTransfer)
-	chFromRoute := make(chan natsapi.ObjectForTransfer)
+	chToRoute := make(chan interfaces.Requester)
+	chFromRoute := make(chan interfaces.Responser)
 
 	r := router.NewRouter(counting, logging, geoIpClient, chToRoute, chFromRoute)
 	r.Start(ctx)
 
 	taskId := time.Now().Format("20250515-125612.00000")
 
-	chToRoute <- natsapi.ObjectForTransfer{
-		TaskId: taskId,
+	chToRoute <- &natsapi.ObjectFromNats{
+		Id: taskId,
 		Data: fmt.Appendf(nil, `{
 			"source": "test_script",
 			"task_id": "%s",
@@ -102,9 +101,8 @@ func TestRequestGeoIP(t *testing.T) {
 
 	data := <-chFromRoute
 
-	var res []responses.DetailedInformation
-	err = json.Unmarshal(data.Data, &res)
-	assert.NoError(t, err)
+	res, ok := data.GetData().([]responses.DetailedInformation)
+	assert.True(t, ok)
 	assert.Equal(t, len(res), 3)
 
 	t.Logf("%+v", res)

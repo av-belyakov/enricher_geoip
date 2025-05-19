@@ -2,8 +2,7 @@ NATS:
   host: 192.168.9.208
   port: 4222
   cache_ttl: 3600
-  subscription_request: object.geoip-request.test
-  subscription_response: object.geoip-response.test
+  subscription: object.geoip-request.test
 GeoIPDataBase:
   host: pg2.cloud.gcm
   port: 88

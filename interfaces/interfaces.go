@@ -23,3 +23,29 @@ type Messager interface {
 type WriterLoggingData interface {
 	Write(typeLogFile, str string) bool
 }
+
+// ************** запрос ***************
+type Requester interface {
+	CommonTransmitter
+	GetData() []byte
+	SetData([]byte)
+}
+
+//************** ответ ***************
+
+type Responser interface {
+	CommonTransmitter
+	GetData() any
+	SetData(any)
+	GetTaskId() string
+	SetTaskId(string)
+	GetSource() string
+	SetSource(string)
+	GetError() error
+	SetError(error)
+}
+
+type CommonTransmitter interface {
+	GetId() string
+	SetId(string)
+}

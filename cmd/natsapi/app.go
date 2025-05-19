@@ -26,9 +26,9 @@ func New(counter interfaces.Counter, logger interfaces.Logger, opts ...NatsApiOp
 		//для логирования
 		logger: logger,
 		//запросы в модуль
-		chFromModule: make(chan ObjectForTransfer),
+		chFromModule: make(chan interfaces.Requester),
 		//события из модуля
-		chToModule: make(chan ObjectForTransfer),
+		chToModule: make(chan interfaces.Responser),
 	}
 
 	for _, opt := range opts {
@@ -103,18 +103,9 @@ func (api *apiNatsModule) Start(ctx context.Context) error {
 	go api.incomingInformationHandler(ctx)
 
 	context.AfterFunc(ctx, func() {
-		fmt.Println("func 'apiNatsModule.Start', STOP FUNC")
-
 		api.storage.Cancel()
 		nc.Drain()
 	})
-
-	/*
-		go func(ctx context.Context, nc *nats.Conn) {
-			<-ctx.Done()
-			nc.Drain()
-		}(ctx, nc)
-	*/
 
 	return nil
 }

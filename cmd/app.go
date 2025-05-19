@@ -113,8 +113,7 @@ func app(ctx context.Context) {
 		natsapi.WithHost(confNats.Host),
 		natsapi.WithPort(confNats.Port),
 		natsapi.WithCacheTTL(confNats.CacheTTL),
-		natsapi.WithSubscriptionRequest(confNats.SubscriptionRequest),
-		natsapi.WithSubscriptionResponse(confNats.SubscriptionResponse))
+		natsapi.WithSubscription(confNats.Subscription))
 	if err != nil {
 		_ = simpleLogger.Write("error", supportingfunctions.CustomError(err).Error())
 
@@ -140,11 +139,12 @@ func app(ctx context.Context) {
 		log.Fatal(err)
 	}
 
-	//информационное сообщение
-	getInformationMessage()
-
 	router := router.NewRouter(counting, logging, geoIpClient, apiNats.GetChFromModule(), apiNats.GetChToModule())
 	router.Start(ctx)
+
+	//информационное сообщение
+	msg := getInformationMessage()
+	_ = simpleLogger.Write("info", msg)
 
 	<-ctx.Done()
 }

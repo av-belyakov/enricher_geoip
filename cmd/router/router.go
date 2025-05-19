@@ -18,23 +18,23 @@ type Router struct {
 	counter       interfaces.Counter
 	logger        interfaces.Logger
 	geoIpClient   *geoipapi.GeoIpClient
-	chFromNatsApi <-chan natsapi.ObjectForTransfer
-	chToNatsApi   chan<- natsapi.ObjectForTransfer
+	chFromNatsApi <-chan interfaces.Requester
+	chToNatsApi   chan<- interfaces.Responser
 }
 
 func NewRouter(
 	counter interfaces.Counter,
 	logger interfaces.Logger,
 	geoIpClient *geoipapi.GeoIpClient,
-	chFrom <-chan natsapi.ObjectForTransfer,
-	chTo chan<- natsapi.ObjectForTransfer,
+	chFromNatsApi <-chan interfaces.Requester,
+	chToNatsApi chan<- interfaces.Responser,
 ) *Router {
 	return &Router{
 		geoIpClient:   geoIpClient,
 		counter:       counter,
 		logger:        logger,
-		chFromNatsApi: chFrom,
-		chToNatsApi:   chTo,
+		chFromNatsApi: chFromNatsApi,
+		chToNatsApi:   chToNatsApi,
 	}
 }
 
@@ -52,21 +52,29 @@ func (r *Router) Start(ctx context.Context) {
 	}()
 }
 
-func (r *Router) handlerRequest(ctx context.Context, msg natsapi.ObjectForTransfer) {
-	response := natsapi.ObjectForTransfer{TaskId: msg.TaskId}
+func (r *Router) handlerRequest(ctx context.Context, msg interfaces.Requester) {
+	response := &natsapi.ObjectToNats{
+		Id: msg.GetId(),
+	}
 
 	if ctx.Err() != nil {
 		return
 	}
 
 	var req requests.Request
-	if err := json.Unmarshal(msg.Data, &req); err != nil {
+	if err := json.Unmarshal(msg.GetData(), &req); err != nil {
 		r.logger.Send("error", supportingfunctions.CustomError(err).Error())
 		response.Error = errors.New("the request received an incorrect json format")
 		r.chToNatsApi <- response
 
 		return
 	}
+
+	response.TaskId = req.TaskId
+	response.Source = req.Source
+
+	r.logger.Send("info", fmt.Sprintf("we are starting to process task Id '%s', which came from source '%s' and contains a request %v", req.TaskId, req.Source, req.ListIp))
+
 	results := make([]responses.DetailedInformation, 0, len(req.ListIp))
 	for _, ip := range req.ListIp {
 		result := responses.DetailedInformation{IpAddr: ip}
@@ -95,21 +103,10 @@ func (r *Router) handlerRequest(ctx context.Context, msg natsapi.ObjectForTransf
 		results = append(results, geoIpInfo)
 	}
 
-	b, err := json.Marshal(fmt.Appendf(nil, `{
-					"source": "%s",
-					"task_id": "%s",
-					"found_information": %v
-				}`, req.Source, req.TaskId, results))
-	if err != nil {
-		r.logger.Send("error", supportingfunctions.CustomError(err).Error())
-		response.Error = err
-		r.chToNatsApi <- response
-
-		return
-	}
+	response.Data = results
 
 	r.counter.SendMessage("update processed events", 1)
+	r.logger.Send("info", fmt.Sprintf("the request for taskId '%s' from source '%s' has been processed", req.TaskId, req.Source))
 
-	response.Data = b
 	r.chToNatsApi <- response
 }
