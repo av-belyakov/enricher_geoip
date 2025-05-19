@@ -2,6 +2,7 @@ package natsapi
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/nats-io/nats.go"
@@ -12,13 +13,15 @@ import (
 // subscriptionHandler обработчик подписки приёма запросов
 func (api *apiNatsModule) subscriptionRequestHandler() {
 	_, err := api.natsConn.Subscribe(api.subscriptionRequest, func(m *nats.Msg) {
-		taskId := uuid.NewString()
+		id := uuid.NewString()
 
-		api.storage.SetReq(taskId, m)
+		fmt.Println("func 'apiNatsModule.subscriptionRequestHandler', reseived new reguest")
+		fmt.Println(string(m.Data))
 
-		api.chFromModule <- ObjectForTransfer{
-			TaskId: taskId,
-			Data:   m.Data,
+		api.storage.SetReq(id, m)
+		api.chFromModule <- &ObjectFromNats{
+			Id:   id,
+			Data: m.Data,
 		}
 
 		//счетчик принятых запросов
@@ -37,18 +40,28 @@ func (api *apiNatsModule) incomingInformationHandler(ctx context.Context) {
 			return
 
 		case incomingData := <-api.chToModule:
-			if m, ok := api.storage.GetReq(incomingData.TaskId); ok {
-				m.Respond(incomingData.Data)
-				api.storage.DelReq(incomingData.TaskId)
-
-				/*
-						!!!!!!!!!!!!!!
-					вроде всё сделал, надо выполнять общий тест всего приложения
-						!!!!!!!!!!!!!!
-				*/
+			m, ok := api.storage.GetReq(incomingData.GetId())
+			if !ok {
+				api.logger.Send("error", supportingfunctions.CustomError(fmt.Errorf("the responder for the request with id '%s' was not found", incomingData.GetId())).Error())
 
 				continue
 			}
+
+			fmt.Println("func 'apiNatsModule.incomingInformationHandler', response information")
+
+			m.Respond(fmt.Appendf(nil, `{
+					"source": "%s",
+					"task_id": "%s",
+					"found_information": %v,
+					"error": "%s
+				}`,
+				incomingData.GetSource(),
+				incomingData.GetTaskId(),
+				incomingData.GetData(),
+				incomingData.GetError()))
+			api.storage.DelReq(incomingData.GetId())
+
+			continue
 		}
 	}
 }

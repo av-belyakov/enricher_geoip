@@ -1,15 +1,79 @@
 package natsapi
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/av-belyakov/enricher_geoip/interfaces"
+)
 
 // GetChToModule канал для передачи данных в модуль
-func (api *apiNatsModule) GetChToModule() chan ObjectForTransfer {
+func (api *apiNatsModule) GetChToModule() chan interfaces.Responser {
 	return api.chToModule
 }
 
 // GetChFromModule канал для приёма данных из модуля
-func (api *apiNatsModule) GetChFromModule() chan ObjectForTransfer {
+func (api *apiNatsModule) GetChFromModule() chan interfaces.Requester {
 	return api.chFromModule
+}
+
+//--- для ObjectFromNats ---
+
+func (o *ObjectFromNats) GetId() string {
+	return o.Id
+}
+
+func (o *ObjectFromNats) SetId(v string) {
+	o.Id = v
+}
+
+func (o *ObjectFromNats) GetData() []byte {
+	return o.Data
+}
+
+func (o *ObjectFromNats) SetData(v []byte) {
+	o.Data = v
+}
+
+//--- для ObjectToNats ---
+
+func (o *ObjectToNats) GetId() string {
+	return o.Id
+}
+
+func (o *ObjectToNats) SetId(v string) {
+	o.Id = v
+}
+
+func (o *ObjectToNats) GetData() any {
+	return o.Data
+}
+
+func (o *ObjectToNats) SetData(v any) {
+	o.Data = v
+}
+
+func (o *ObjectToNats) GetError() error {
+	return o.Error
+}
+
+func (o *ObjectToNats) SetError(v error) {
+	o.Error = v
+}
+
+func (o *ObjectToNats) GetTaskId() string {
+	return o.TaskId
+}
+
+func (o *ObjectToNats) SetTaskId(v string) {
+	o.TaskId = v
+}
+
+func (o *ObjectToNats) GetSource() string {
+	return o.Source
+}
+
+func (o *ObjectToNats) SetSource(v string) {
+	o.Source = v
 }
 
 //******************* функции настройки опций natsapi ***********************
@@ -62,40 +126,14 @@ func WithNameRegionalObject(v string) NatsApiOptions {
 	}
 }
 
-// WithSubscriptionRequest 'слушатель' запросов на поиск информации
-func WithSubscriptionRequest(v string) NatsApiOptions {
+// WithSubscription 'слушатель' запросов на поиск информации
+func WithSubscription(v string) NatsApiOptions {
 	return func(n *apiNatsModule) error {
 		if v == "" {
-			return errors.New("the value of 'subscription_request' cannot be empty")
+			return errors.New("the value of 'subscription' cannot be empty")
 		}
 
 		n.subscriptionRequest = v
-
-		return nil
-	}
-}
-
-// WithSubscriptionResponse подписка для передачи ответов
-func WithSubscriptionResponse(v string) NatsApiOptions {
-	return func(n *apiNatsModule) error {
-		if v == "" {
-			return errors.New("the value of 'subscription_response' cannot be empty")
-		}
-
-		n.subscriptionResponse = v
-
-		return nil
-	}
-}
-
-// WithSendCommand команду отправляемая в NATS
-func WithSendCommand(v string) NatsApiOptions {
-	return func(n *apiNatsModule) error {
-		if v == "" {
-			return errors.New("the value of 'command' cannot be empty")
-		}
-
-		n.settings.command = v
 
 		return nil
 	}

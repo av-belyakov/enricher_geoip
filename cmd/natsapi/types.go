@@ -16,8 +16,8 @@ type apiNatsModule struct {
 	subscriptionRequest  string
 	subscriptionResponse string
 	settings             apiNatsSettings
-	chFromModule         chan ObjectForTransfer
-	chToModule           chan ObjectForTransfer
+	chFromModule         chan interfaces.Requester
+	chToModule           chan interfaces.Responser
 }
 
 type apiNatsSettings struct {
@@ -31,9 +31,17 @@ type apiNatsSettings struct {
 // NatsApiOptions функциональные опции
 type NatsApiOptions func(*apiNatsModule) error
 
-// ObjectForTransfer объект для передачи данных
-type ObjectForTransfer struct {
-	Data   []byte
+// ObjectFromNats объект для передачи данных
+type ObjectFromNats struct {
+	Data []byte
+	Id   string
+}
+
+// ObjectToNats объект для передачи данных
+type ObjectToNats struct {
+	Data   any
 	Error  error
+	Id     string
 	TaskId string
+	Source string
 }

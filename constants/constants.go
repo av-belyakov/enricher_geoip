@@ -1,7 +1,7 @@
 package constants
 
 const (
-	Root_Dir = "thehivehook_go_package"
+	Root_Dir = "enricher_geoip"
 
 	Ansi_Reset                 = "\033[0m"
 	Ansi_White                 = "\033[97m"
