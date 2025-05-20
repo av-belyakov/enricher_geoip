@@ -2,11 +2,14 @@ package natsapi
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/nats-io/nats.go"
 
+	"github.com/av-belyakov/enricher_geoip/internal/responses"
 	"github.com/av-belyakov/enricher_geoip/internal/supportingfunctions"
 )
 
@@ -14,9 +17,6 @@ import (
 func (api *apiNatsModule) subscriptionRequestHandler() {
 	_, err := api.natsConn.Subscribe(api.subscriptionRequest, func(m *nats.Msg) {
 		id := uuid.NewString()
-
-		fmt.Println("func 'apiNatsModule.subscriptionRequestHandler', reseived new reguest")
-		fmt.Println(string(m.Data))
 
 		api.storage.SetReq(id, m)
 		api.chFromModule <- &ObjectFromNats{
@@ -47,21 +47,31 @@ func (api *apiNatsModule) incomingInformationHandler(ctx context.Context) {
 				continue
 			}
 
-			fmt.Println("func 'apiNatsModule.incomingInformationHandler', response information")
+			var errMsg string
+			if incomingData.GetError() != nil {
+				errMsg = incomingData.GetError().Error()
+			}
 
-			m.Respond(fmt.Appendf(nil, `{
-					"source": "%s",
-					"task_id": "%s",
-					"found_information": %v,
-					"error": "%s
-				}`,
-				incomingData.GetSource(),
-				incomingData.GetTaskId(),
-				incomingData.GetData(),
-				incomingData.GetError()))
+			incData, ok := incomingData.GetData().([]responses.DetailedInformation)
+			if !ok {
+				api.logger.Send("error", supportingfunctions.CustomError(errors.New("data conversion error")).Error())
+
+				continue
+			}
+
+			response, err := json.Marshal(responses.Response{
+				Source:           incomingData.GetSource(),
+				TaskId:           incomingData.GetTaskId(),
+				FoundInformation: incData,
+				Error:            errMsg,
+			})
+			if err != nil {
+				api.logger.Send("error", supportingfunctions.CustomError(err).Error())
+			}
+
+			m.Respond(response)
 			api.storage.DelReq(incomingData.GetId())
 
-			continue
 		}
 	}
 }

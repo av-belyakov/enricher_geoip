@@ -139,11 +139,12 @@ func app(ctx context.Context) {
 		log.Fatal(err)
 	}
 
-	//информационное сообщение
-	getInformationMessage()
-
 	router := router.NewRouter(counting, logging, geoIpClient, apiNats.GetChFromModule(), apiNats.GetChToModule())
 	router.Start(ctx)
+
+	//информационное сообщение
+	msg := getInformationMessage()
+	_ = simpleLogger.Write("info", msg)
 
 	<-ctx.Done()
 }

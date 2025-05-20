@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 
 	"github.com/av-belyakov/enricher_geoip/cmd/geoipapi"
 	"github.com/av-belyakov/enricher_geoip/cmd/natsapi"
@@ -72,6 +73,8 @@ func (r *Router) handlerRequest(ctx context.Context, msg interfaces.Requester) {
 	response.TaskId = req.TaskId
 	response.Source = req.Source
 
+	r.logger.Send("info", fmt.Sprintf("we are starting to process task Id '%s', which came from source '%s' and contains a request %v", req.TaskId, req.Source, req.ListIp))
+
 	results := make([]responses.DetailedInformation, 0, len(req.ListIp))
 	for _, ip := range req.ListIp {
 		result := responses.DetailedInformation{IpAddr: ip}
@@ -103,6 +106,7 @@ func (r *Router) handlerRequest(ctx context.Context, msg interfaces.Requester) {
 	response.Data = results
 
 	r.counter.SendMessage("update processed events", 1)
+	r.logger.Send("info", fmt.Sprintf("the request for taskId '%s' from source '%s' has been processed", req.TaskId, req.Source))
 
 	r.chToNatsApi <- response
 }

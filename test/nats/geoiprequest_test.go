@@ -88,37 +88,19 @@ func TestGeoIpRequest(t *testing.T) {
 		log.Fatalln(err)
 	}
 
-	//replayTo := nc.NewInbox()
-
-	//sub, err := nc.SubscribeSync(replayTo)
-	//assert.NoError(t, err)
-
-	//err = nc.PublishRequest(SUBSCRIPTION, replayTo, []byte(`{
-	//	"source": "test_source",
-	//	"task_id": "dg87w82883r33r4qds",
-	//	"list_ip_addresses": ["59.33.123.10", "73.63.120.36", "69.1.36.11"]
-	//}`))
-	//assert.NoError(t, err)
-
-	//msg, err := sub.NextMsg(5 * time.Second)
-	//assert.NoError(t, err)
-
-	//t.Log("Response:", string(msg.Data))
-
 	nmsg, err := nc.RequestWithContext(t.Context(), SUBSCRIPTION, []byte(`{
 			"source": "test_source",
 	  		"task_id": "dg87w82883r33r4qds",
-	   		"list_ip_addresses": ["59.33.123.10", "73.63.120.36", "69.1.36.11"]
+	   		"list_ip_addresses": ["57.31.173.10", "71.67.123.36", "69.111.36.11"]
 		}`))
 
 	response := ResponseData{}
 	err = json.Unmarshal(nmsg.Data, &response)
 	assert.NoError(t, err)
-
-	t.Log("Response:", string(nmsg.Data))
+	assert.Equal(t, len(response.Information), 3)
 
 	nmsg.Sub.Unsubscribe()
-
+	t.Log("Response:", response)
 	t.Cleanup(func() {
 		nc.Close()
 	})
