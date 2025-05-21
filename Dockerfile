@@ -12,20 +12,25 @@ FROM golang:${TAG_NAME} AS build_image
 LABEL temporary=""
 ARG BRANCH
 ARG VERSION
+ARG USERNAME
+ARG USERPASSWD
 WORKDIR /go/
 COPY --from=packages_image /go ./
 RUN echo -e "build_image" && \
     rm -r ./src && \
     apk update && \
     apk add --no-cache git && \
-    git clone -b ${BRANCH} https://github.com/av-belyakov/enricher_geoip.git  ./src/${VERSION}/ && \
+    # брать исходный код с репозитория на gitlab.cloud.gcm 
+    git clone -b ${BRANCH} http://${USERNAME}:${USERPASSWD}@gitlab.cloud.gcm/a.belyakov/enricher_geoip.git ./src/${VERSION}/ && \
+    # брать исходный код с репозитория на github.com 
+    #git clone -b ${BRANCH} https://github.com/av-belyakov/enricher_geoip.git  ./src/${VERSION}/ && \
     go build -C ./src/${VERSION}/cmd/ -o ../app
 
 FROM ${IMAGE_NAME}
 LABEL author="Artemij Belyakov"
-#аргумент STATUS содержит режим запуска приложения prod или development
-#если значение содержит запись development, то в таком режиме и будет
-#работать приложение, во всех остальных случаях режим работы prod
+# аргумент STATUS содержит режим запуска приложения prod или development
+# если значение содержит запись development, то в таком режиме и будет
+# работать приложение, во всех остальных случаях режим работы prod
 ARG STATUS=""
 ARG VERSION
 ARG USERNAME=dockeruser
