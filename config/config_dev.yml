@@ -12,5 +12,5 @@ WriteLogDataBase:
   host: datahook.cloud.gcm
   port: 9200
   user: log_writer
-  namedb: ""
+  namedb:
   storage_name_db: enricher_geoip
