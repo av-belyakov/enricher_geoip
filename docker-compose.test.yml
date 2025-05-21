@@ -1,0 +1,20 @@
+version: "3.4"
+
+services:
+  app:
+    container_name: enricher_geoip.test
+    environment:
+      - GO_ENRICHERGEOIP_DBWLOGPASSWD=$EGEOIP_DBWLOGPASSWD
+    image: gitlab.cloud.gcm:5050/a.belyakov/enricher_geoip:test
+    restart: unless-stopped
+    #пробрасываем user ID для корректной записи в логов
+    user: root
+    command: chmod 777 /opt/enricher_geoip/logs && \
+             chown 1500:1500 /opt/enricher_geoip/logs
+    volumes:
+      - /var/log/enricher_geoip.test:/opt/enricher_geoip/logs:rw
+      - ./config:/opt/enricher_geoip/config:rw
+      #выполняем для корректного отображения даты с учетом временной зоны
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    network_mode: "host"

@@ -1,0 +1,129 @@
+variables:
+  BRANCH_MAJOR: master
+  BRANCH_TEST: development
+
+stages:
+  - build
+  - deploy
+
+# сборка, это на моем ПК
+.build-runner-tags: &build-tags
+  tags:
+    - enricher_geoip.build
+
+# разворачивает тестовую сборку
+.deploy-test-runner-tags: &deploy-test-tags
+  tags:
+    - enricher_geoip.test
+
+# разворачивает продуктовую сборку
+.deploy-prod-runner-tags: &deploy-prod-tags
+  tags:
+    - enricher_geoip.prod
+
+.docker-login-script: &docker-login
+  - echo $CI_JOB_TOKEN | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+
+.docker-image-prune: &docker-image-pure
+  - docker image prune -a --force --filter="label=temporary"
+
+.change-readme-never-commit: &readme-no-commit
+  - if: $CI_COMMIT_BRANCH == $BRANCH_MAJOR || $CI_COMMIT_BRANCH == $BRANCH_TEST
+    changes:
+      - README.md
+    when: never
+
+.change-docker-compose-never-commit: &docker-compose-no-commit
+  - if: $CI_COMMIT_BRANCH == $BRANCH_MAJOR || $CI_COMMIT_BRANCH == $BRANCH_TEST
+    changes:
+      - docker-compose.yml
+      - docker-compose.test.yml
+    when: never
+
+.is-branch-dev-test-commit: &dev-test-commit
+  - if: $CI_COMMIT_BRANCH == $BRANCH_TEST || $CI_COMMIT_REF_NAME == $BRANCH_TEST
+
+.is-branch-master-commit: &master-commit
+  - if: $CI_COMMIT_BRANCH == $BRANCH_MAJOR || $CI_COMMIT_REF_NAME == $BRANCH_MAJOR
+
+#выводим версию приложения
+get_version:
+  stage: .pre
+  <<: *deploy-prod-tags
+  script:
+    - 'V=`awk ''/[0-9].[0-9].[0-9]/; {print $2}'' $CI_PROJECT_DIR/version`; echo "version $V"'
+
+#сборка тестового образа
+build-test:
+  stage: build
+  <<: *build-tags
+  rules:
+    - *readme-no-commit
+    - *docker-compose-no-commit
+    - *dev-test-commit
+  script:
+    # удаляем старый образ
+    - docker rmi $CI_REGISTRY_IMAGE:test || true
+    - >
+      docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA \
+       --build-arg VERSION=$CI_COMMIT_SHORT_SHA \
+       --build-arg BRANCH=$BRANCH_TEST \
+       --build-arg STATUS=development .
+    # удаляем промежуточный образ с меткой temporary
+    - *docker-image-pure
+    - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA $CI_REGISTRY_IMAGE:test
+    - *docker-login
+    - docker push $CI_REGISTRY_IMAGE:test
+    - docker rmi $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA || true
+
+#сборка основного образа
+build-prod:
+  stage: build
+  <<: *build-tags
+  rules:
+    - *readme-no-commit
+    - *docker-compose-no-commit
+    - *master-commit
+  script:
+    - docker rmi $CI_REGISTRY_IMAGE:latest || true
+    - >
+      docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA \
+       --build-arg VERSION=$CI_COMMIT_SHORT_SHA \
+       --build-arg BRANCH=$BRANCH_MAJOR .
+    - *docker-image-pure
+    - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA $CI_REGISTRY_IMAGE:latest
+    - *docker-login
+    - docker push $CI_REGISTRY_IMAGE:latest
+    - docker rmi $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA || true
+
+#развёртывание тестовой сборки (GCM.test)
+deploy-test:
+  stage: deploy
+  <<: *deploy-test-tags
+  rules:
+    - *readme-no-commit
+    - *dev-test-commit
+  before_script:
+    - echo "Start deploy enricher_geoip application for GCM.test"
+  script:
+    - *docker-login
+    - docker-compose -f $CI_PROJECT_DIR/docker-compose.test.yml down
+    - docker rmi gitlab.cloud.gcm:5050/a.belyakov/enricher_geoip:test || true
+    - docker-compose -f $CI_PROJECT_DIR/docker-compose.test.yml up -d --force-recreate --build
+
+#развёртывание основной сборки (GCM)
+deploy-prod-gcm:
+  stage: deploy
+  <<: *deploy-prod-tags
+  rules:
+    - *readme-no-commit
+    - if: $CI_COMMIT_BRANCH == $BRANCH_MAJOR || $CI_COMMIT_REF_NAME == $BRANCH_MAJOR
+      when: manual
+      allow_failure: true
+  before_script:
+    - echo "Start deploy enricher_geoip application for GCM"
+  script:
+    - *docker-login
+    - docker-compose -f $CI_PROJECT_DIR/docker-compose.yml down
+    - docker rmi gitlab.cloud.gcm:5050/a.belyakov/enricher_geoip:latest || true
+    - docker-compose -f $CI_PROJECT_DIR/docker-compose.yml up -d --force-recreate --build
