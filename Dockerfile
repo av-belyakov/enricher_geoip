@@ -21,7 +21,6 @@ RUN echo -e "build_image" && \
     apk update && \
     apk add --no-cache git && \
     # брать исходный код с репозитория на gitlab.cloud.gcm 
-    git clone -b ${BRANCH} http://${USERNAME}:${USERPASSWD}@gitlab.cloud.gcm/a.belyakov/enricher_geoip.git ./src/${VERSION}/ && \
     #git clone -b ${BRANCH} http://${USERNAME}:${USERPASSWD}@gitlab.cloud.gcm/a.belyakov/enricher_geoip.git ./src/${VERSION}/ && \
     git clone -b ${BRANCH} http://${USERNAME}:${USERPASSWD}@192.168.9.33/a.belyakov/enricher_geoip.git ./src/${VERSION}/ && \
     # брать исходный код с репозитория на github.com 
