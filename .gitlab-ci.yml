@@ -52,6 +52,13 @@ stages:
       - docker-compose.test.yml
     when: never
 
+# не выполнять если изменился какой либо из файлов в директории test
+.change-test-files-never-commit: &test-files-no-commit
+  - if: $CI_COMMIT_BRANCH == $BRANCH_MAJOR || $CI_COMMIT_BRANCH == $BRANCH_TEST
+    changes:
+      - test/**/*
+    when: never
+
 .is-branch-dev-test-commit: &dev-test-commit
   - if: $CI_COMMIT_BRANCH == $BRANCH_TEST || $CI_COMMIT_REF_NAME == $BRANCH_TEST
 
@@ -72,6 +79,7 @@ build-test:
   rules:
     - *readme-no-commit
     - *configs-no-commit
+    - *test-files-no-commit
     - *docker-compose-no-commit
     - *dev-test-commit
   script:
@@ -98,6 +106,7 @@ build-prod:
   rules:
     - *readme-no-commit
     - *configs-no-commit
+    - *test-files-no-commit
     - *docker-compose-no-commit
     - *master-commit
   script:
@@ -120,6 +129,7 @@ deploy-test:
   <<: *deploy-test-tags
   rules:
     - *readme-no-commit
+    - *test-files-no-commit
     - *dev-test-commit
   before_script:
     - echo "Start deploy enricher_geoip application for GCM.test"
@@ -135,6 +145,7 @@ deploy-prod-gcm:
   <<: *deploy-prod-tags
   rules:
     - *readme-no-commit
+    - *test-files-no-commit
     - if: $CI_COMMIT_BRANCH == $BRANCH_MAJOR || $CI_COMMIT_REF_NAME == $BRANCH_MAJOR
       when: manual
       allow_failure: true
