@@ -54,7 +54,8 @@ func (r *Router) Start(ctx context.Context) {
 
 func (r *Router) handlerRequest(ctx context.Context, msg interfaces.Requester) {
 	response := &natsapi.ObjectToNats{
-		Id: msg.GetId(),
+		Data: make([]responses.DetailedInformation, 0),
+		Id:   msg.GetId(),
 	}
 
 	if ctx.Err() != nil {
