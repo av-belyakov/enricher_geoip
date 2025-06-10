@@ -35,10 +35,10 @@ type IpAddrLocation struct {
 		IpFirst string `json:"ip_first"`
 		IpLast  string `json:"ip_last"`
 	} `json:"ip_range"`
-	Isp       string `json:"isp"`
-	Region    string `json:"region"`
-	Source    string `json:"source"`
-	Subnet    string `json:"subnet"`
-	UpdatedAt string `json:"updated_at"`
-	Rating    int    `json:"rating"`
+	Isp       string  `json:"isp"`
+	Region    string  `json:"region"`
+	Source    string  `json:"source"`
+	Subnet    string  `json:"subnet"`
+	UpdatedAt string  `json:"updated_at"`
+	Rating    float64 `json:"rating"`
 }

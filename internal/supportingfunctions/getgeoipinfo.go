@@ -1,6 +1,8 @@
 package supportingfunctions
 
-import "github.com/av-belyakov/enricher_geoip/internal/responses"
+import (
+	"github.com/av-belyakov/enricher_geoip/internal/responses"
+)
 
 // GetInfoGeoIP возвращает информацию из списка найденных данны о геопозиционировании
 // Выбираются данные по следующему принципу:
@@ -13,20 +15,23 @@ func GetGeoIPInfo(data responses.ResponseGeoIPDataBase) (responses.DetailedInfor
 		rating int
 		source string
 	)
+
 	for _, info := range data.IpLocations {
+		r := int(info.Rating)
+
 		if info.Country == "" || info.CountryCode == "" {
 			continue
 		}
 
-		if rating > info.Rating {
+		if rating > r {
 			continue
-		} else if rating == info.Rating {
+		} else if rating == r {
 			if source == "GeoipNoc" {
 				continue
 			} else if source == "MAXMIND" && info.Source != "GeoipNoc" {
 				continue
 			} else {
-				rating = info.Rating
+				rating = r
 				source = info.Source
 
 				result.Code = info.CountryCode
@@ -43,7 +48,7 @@ func GetGeoIPInfo(data responses.ResponseGeoIPDataBase) (responses.DetailedInfor
 				}
 			}
 		} else {
-			rating = info.Rating
+			rating = r
 			source = info.Source
 
 			result.Code = info.CountryCode
