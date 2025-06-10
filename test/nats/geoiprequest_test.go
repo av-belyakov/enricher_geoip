@@ -100,7 +100,7 @@ func TestGeoIpRequest(t *testing.T) {
 	assert.Equal(t, len(response.Information), 3)
 
 	nmsg.Sub.Unsubscribe()
-	t.Log("Response:", response)
+	t.Logf("Response:%+v\n", response)
 	t.Cleanup(func() {
 		nc.Close()
 	})
