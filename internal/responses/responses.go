@@ -44,5 +44,5 @@ type IpAddrLocation struct {
 	Source    string `json:"source"`
 	Subnet    string `json:"subnet"`
 	UpdatedAt string `json:"updated_at"`
-	Rating    string `json:"rating"`
+	Rating    int    `json:"rating"`
 }

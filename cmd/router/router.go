@@ -98,13 +98,7 @@ func (r *Router) handlerRequest(ctx context.Context, msg interfaces.Requester) {
 			continue
 		}
 
-		geoIpInfo, _, err := supportingfunctions.GetGeoIPInfo(geoIPRes)
-		if err != nil {
-			r.logger.Send("error", supportingfunctions.CustomError(err).Error())
-
-			continue
-		}
-
+		geoIpInfo, _ := supportingfunctions.GetGeoIPInfo(geoIPRes)
 		geoIpInfo.IpAddr = ip
 
 		results = append(results, geoIpInfo)

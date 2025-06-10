@@ -93,7 +93,7 @@ func TestGeoIpRequest(t *testing.T) {
 	  		"task_id": "dg87w82883r33r4qds",
 	   		"list_ip_addresses": ["57.31.173.10", "71.67.123.36", "69.111.36.11"]
 		}`))
-
+	//111.167.23.30
 	response := ResponseData{}
 	err = json.Unmarshal(nmsg.Data, &response)
 	assert.NoError(t, err)

@@ -1,8 +1,6 @@
 package supportingfunctions
 
 import (
-	"strconv"
-
 	"github.com/av-belyakov/enricher_geoip/internal/responses"
 )
 
@@ -11,7 +9,7 @@ import (
 //  1. приоритет отдаётся объекту с самым высоким рейтингом
 //  2. если рейтинг у двух объектов одинаков то в приоритете источник
 //     данных, сначала 'GeoipNoc', затем 'MAXMIND'
-func GetGeoIPInfo(data responses.ResponseGeoIPDataBase) (responses.DetailedInformation, string, error) {
+func GetGeoIPInfo(data responses.ResponseGeoIPDataBase) (responses.DetailedInformation, string) {
 	var (
 		result responses.DetailedInformation = responses.DetailedInformation{}
 		rating int
@@ -19,24 +17,19 @@ func GetGeoIPInfo(data responses.ResponseGeoIPDataBase) (responses.DetailedInfor
 	)
 
 	for _, info := range data.IpLocations {
-		r, err := strconv.Atoi(info.Rating)
-		if err != nil {
-			return result, source, err
-		}
-
 		if info.Country == "" || info.CountryCode == "" {
 			continue
 		}
 
-		if rating > r {
+		if rating > info.Rating {
 			continue
-		} else if rating == r {
+		} else if rating == info.Rating {
 			if source == "GeoipNoc" {
 				continue
 			} else if source == "MAXMIND" && info.Source != "GeoipNoc" {
 				continue
 			} else {
-				rating = r
+				rating = info.Rating
 				source = info.Source
 
 				result.Code = info.CountryCode
@@ -53,7 +46,7 @@ func GetGeoIPInfo(data responses.ResponseGeoIPDataBase) (responses.DetailedInfor
 				}
 			}
 		} else {
-			rating = r
+			rating = info.Rating
 			source = info.Source
 
 			result.Code = info.CountryCode
@@ -71,5 +64,5 @@ func GetGeoIPInfo(data responses.ResponseGeoIPDataBase) (responses.DetailedInfor
 		}
 	}
 
-	return result, source, nil
+	return result, source
 }
