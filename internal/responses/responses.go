@@ -1,5 +1,6 @@
 package responses
 
+// Response ответ клиенту модуля
 type Response struct {
 	FoundInformation []DetailedInformation `json:"found_information"`
 	TaskId           string                `json:"task_id"`
@@ -7,6 +8,7 @@ type Response struct {
 	Error            string                `json:"error"`
 }
 
+// DetailedInformation подробная информация о местоположении ip адреса
 type DetailedInformation struct {
 	IpRange struct {
 		IpFirst string `json:"ip_first"`
@@ -21,11 +23,13 @@ type DetailedInformation struct {
 	Error     string `json:"error"`
 }
 
+// ResponseGeoIPDataBase ответ от удаленной базы данных
 type ResponseGeoIPDataBase struct {
 	IpLocations             []IpAddrLocation `json:"ip_locations"`
 	InternetProtocolVersion string           `json:"address_version"`
 }
 
+// IpAddrLocation описание местоположения ip адреса
 type IpAddrLocation struct {
 	Asns        []any  `json:"asns"`
 	City        string `json:"city"`
