@@ -91,20 +91,14 @@ func (r *Router) handlerRequest(ctx context.Context, msg interfaces.Requester) {
 
 		var geoIPRes responses.ResponseGeoIPDataBase
 		if err = json.Unmarshal(res, &geoIPRes); err != nil {
-			result.Error = "a json object in an incorrect format was received from the geoip database"
+			result.Error = err.Error()
 			results = append(results, result)
 			r.logger.Send("error", supportingfunctions.CustomError(err).Error())
 
 			continue
 		}
 
-		geoIpInfo, _, err := supportingfunctions.GetGeoIPInfo(geoIPRes)
-		if err != nil {
-			r.logger.Send("error", supportingfunctions.CustomError(err).Error())
-
-			continue
-		}
-
+		geoIpInfo, _ := supportingfunctions.GetGeoIPInfo(geoIPRes)
 		geoIpInfo.IpAddr = ip
 
 		results = append(results, geoIpInfo)

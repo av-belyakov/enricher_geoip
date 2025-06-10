@@ -21,8 +21,7 @@ func TestGetInfoGeoIp(t *testing.T) {
 	err = json.Unmarshal(f, &geoIPRes)
 	assert.NoError(t, err)
 
-	result, source, err := supportingfunctions.GetGeoIPInfo(geoIPRes)
-	assert.NoError(t, err)
+	result, source := supportingfunctions.GetGeoIPInfo(geoIPRes)
 	assert.Equal(t, source, "GeoipNoc")
 	assert.Equal(t, result.Code, "US")
 	assert.Equal(t, result.Country, "США")
