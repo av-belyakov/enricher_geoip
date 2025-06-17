@@ -34,8 +34,6 @@ func NewElasticsearchConnect(settings Settings) (*ElasticsearchDB, error) {
 				//KeepAlive: 1 * time.Second,
 			}).DialContext,
 		},
-		//RetryOnError: ,
-		//RetryOnStatus: ,
 	})
 	if err != nil {
 		return edb, err

@@ -13,6 +13,7 @@ var (
 	err  error
 )
 
+// New инициализация нового хранилища
 func New(ctx context.Context, opts ...OptionsStorageTemporary) (*StorageTemporary, error) {
 	once.Do(func() {
 		st = &StorageTemporary{

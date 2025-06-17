@@ -22,6 +22,7 @@ type Router struct {
 	chToNatsApi   chan<- interfaces.Responser
 }
 
+// NewRouter инициализация нового маршрутизатора
 func NewRouter(
 	counter interfaces.Counter,
 	logger interfaces.Logger,
@@ -38,6 +39,7 @@ func NewRouter(
 	}
 }
 
+// Start активация маршрутизатора
 func (r *Router) Start(ctx context.Context) {
 	go func() {
 		for {
