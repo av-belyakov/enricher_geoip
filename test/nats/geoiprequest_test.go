@@ -7,16 +7,19 @@ import (
 	"testing"
 	"time"
 
+	"github.com/goforj/godump"
 	"github.com/nats-io/nats.go"
 	"github.com/stretchr/testify/assert"
 )
 
 const (
-	NATS_HOST = "192.168.9.208"
+	NATS_HOST = "nats.cloud.gcm"
+	//NATS_HOST = "192.168.9.208"
 	NATS_PORT = 4222
 
 	CACHETTL     = 360
-	SUBSCRIPTION = "object.geoip-request.test"
+	SUBSCRIPTION = "object.geoip-request"
+	//SUBSCRIPTION = "object.geoip-request.test"
 )
 
 type ResponseData struct {
@@ -100,7 +103,9 @@ func TestGeoIpRequest(t *testing.T) {
 	assert.Equal(t, len(response.Information), 3)
 
 	nmsg.Sub.Unsubscribe()
-	t.Logf("Response:%+v\n", response)
+
+	godump.Dump(response)
+	//t.Logf("Response:%#v\n", response)
 	t.Cleanup(func() {
 		nc.Close()
 	})

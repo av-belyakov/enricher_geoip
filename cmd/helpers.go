@@ -9,9 +9,10 @@ import (
 	"github.com/av-belyakov/enricher_geoip/constants"
 	"github.com/av-belyakov/enricher_geoip/internal/appname"
 	"github.com/av-belyakov/enricher_geoip/internal/appversion"
+	"github.com/av-belyakov/enricher_geoip/internal/confighandler"
 )
 
-func getInformationMessage() string {
+func getInformationMessage(conf *confighandler.ConfigApp) string {
 	version, err := appversion.GetVersion()
 	if err != nil {
 		log.Println(err)
@@ -27,6 +28,7 @@ func getInformationMessage() string {
 
 	fmt.Printf("\n%v%v%s.%v\n", constants.Bold_Font, constants.Ansi_Bright_Green, msg, constants.Ansi_Reset)
 	fmt.Printf("%v%vApplication status is '%s'.%v\n", constants.Underlining, constants.Ansi_Bright_Green, appStatus, constants.Ansi_Reset)
+	fmt.Printf("%vConnect to NATS with address %v'%s:%d'%v\n", constants.Ansi_Bright_Green, constants.Ansi_Dark_Gray, conf.NATS.Host, conf.NATS.Port, constants.Ansi_Reset)
 
 	return msg
 }

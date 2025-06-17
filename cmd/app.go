@@ -119,7 +119,7 @@ func app(ctx context.Context) {
 
 		log.Fatal(err)
 	}
-	//--- старт модуля
+	//--- старт модуля ---
 	if err = apiNats.Start(ctx); err != nil {
 		_ = simpleLogger.Write("error", supportingfunctions.CustomError(err).Error())
 
@@ -143,7 +143,7 @@ func app(ctx context.Context) {
 	router.Start(ctx)
 
 	//информационное сообщение
-	msg := getInformationMessage()
+	msg := getInformationMessage(conf)
 	_ = simpleLogger.Write("info", msg)
 
 	<-ctx.Done()

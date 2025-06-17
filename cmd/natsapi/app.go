@@ -4,13 +4,11 @@ package natsapi
 import (
 	"context"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/nats-io/nats.go"
 
 	"github.com/av-belyakov/enricher_geoip/cmd/natsapi/storagetemporary"
-	"github.com/av-belyakov/enricher_geoip/constants"
 	"github.com/av-belyakov/enricher_geoip/interfaces"
 	"github.com/av-belyakov/enricher_geoip/internal/supportingfunctions"
 )
@@ -91,8 +89,6 @@ func (api *apiNatsModule) Start(ctx context.Context) error {
 	if err != nil {
 		return supportingfunctions.CustomError(err)
 	}
-
-	log.Printf("%vconnect to NATS with address %v%s:%d%v\n", constants.Ansi_Bright_Green, constants.Ansi_Dark_Gray, api.settings.host, api.settings.port, constants.Ansi_Reset)
 
 	api.natsConn = nc
 
