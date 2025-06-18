@@ -27,8 +27,19 @@ func getInformationMessage(conf *confighandler.ConfigApp) string {
 	msg := fmt.Sprintf("Application '%s' v%s was successfully launched", appname.GetName(), strings.Replace(version, "\n", "", -1))
 
 	fmt.Printf("\n%v%v%s.%v\n", constants.Bold_Font, constants.Ansi_Bright_Green, msg, constants.Ansi_Reset)
-	fmt.Printf("%v%vApplication status is '%s'.%v\n", constants.Underlining, constants.Ansi_Bright_Green, appStatus, constants.Ansi_Reset)
-	fmt.Printf("%vConnect to NATS with address %v'%s:%d'%v\n", constants.Ansi_Bright_Green, constants.Ansi_Dark_Gray, conf.NATS.Host, conf.NATS.Port, constants.Ansi_Reset)
+	fmt.Printf("%v%vApplication status is '%s'%v\n", constants.Underlining, constants.Ansi_Bright_Green, appStatus, constants.Ansi_Reset)
+	fmt.Printf(
+		"%vConnect to NATS with address %v%s:%d%v%v, subscription %v'%s'%v\n",
+		constants.Ansi_Bright_Green,
+		constants.Ansi_Dark_Gray,
+		conf.NATS.Host,
+		conf.NATS.Port,
+		constants.Ansi_Reset,
+		constants.Ansi_Bright_Green,
+		constants.Ansi_Dark_Gray,
+		conf.NATS.Subscription,
+		constants.Ansi_Reset,
+	)
 
 	return msg
 }
